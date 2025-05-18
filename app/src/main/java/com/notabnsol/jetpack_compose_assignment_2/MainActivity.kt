@@ -3,45 +3,39 @@ package com.notabnsol.jetpack_compose_assignment_2
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.notabnsol.jetpack_compose_assignment_2.ui.screens.TodoDetailScreen
+import com.notabnsol.jetpack_compose_assignment_2.ui.screens.TodoListScreen
 import com.notabnsol.jetpack_compose_assignment_2.ui.theme.Jetpackcomposeassignment2Theme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
+        setContent{
             Jetpackcomposeassignment2Theme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                val navController = rememberNavController()
+                NavHost(navController, startDestination = "todo_list") {
+                    composable("todo_list") {
+                        TodoListScreen(
+                            onTodoClick = { todoId ->
+                                navController.navigate("todo_detail/$todoId")
+                            }
+                        )
+                    }
+                    composable("todo_detail/{todoId}") { backStackEntry ->
+                        val todoId = backStackEntry.arguments?.getString("todoId")?.toIntOrNull()
+                        TodoDetailScreen(
+                            todoId = todoId,
+                            onBack = { navController.popBackStack() }
+                        )
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Jetpackcomposeassignment2Theme {
-        Greeting("Android")
     }
 }
